@@ -44,27 +44,21 @@ straightforward one is called "n".
 install node through `brew` so that you get `npm`, like so:
 
 ``` bash
-brew install node
-```
+$ brew update
+$ brew install nvm
 
-- Now, install node using [n](https://github.com/tj/n), like so:
+# The following are post-install instructions from brew
+$ mkdir ~/.nvm
+$ cp $(brew --prefix nvm)/nvm-exec ~/.nvm/
+$ export NVM_DIR=~/.nvm
+$ nvm install v0.12.7
 
-``` bash
-npm install -g n
-n stable
-```
-
-- Override the `node` installed by `brew` with
-
-``` bash
-n stable
-```
-
-- Uninstall the version of `node` you installed with `brew` so
-that only the `n` version remains:
-
-``` bash
-brew uninstall node
+# Now time to add nvm to your path
+$ subl ~/.bash_profile
+# Write the following 3 lines at the bottom of the file, then save and close.
+export NVM_DIR=~/.nvm
+source $(brew --prefix nvm)/nvm.sh
+nvm use v0.12.7
 ```
 
 ## Modules
