@@ -11,8 +11,8 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-var messages = [];
-var stringMessage = "";
+var messages = {};
+messages.results = [];
 
 
  var requestHandler = function(request, response) {
@@ -32,13 +32,13 @@ var stringMessage = "";
   // console.logs in your code.
 
   // The outgoing status.
-  var statusCode = 200;
 
 
-
-  console.log("Serving request type " + request.method + " for url " + request.url, statusCode);
+  // var lookup = path.basename(decodeURI(request.url));
+  // pages
+  // console.log("Serving request type " + request.method + " for url " + request.url, statusCode);
   // See the note below about CORS headers.
-
+ console.log(messages)
 
 
   var headers = defaultCorsHeaders;
@@ -51,7 +51,6 @@ var stringMessage = "";
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -61,31 +60,57 @@ var stringMessage = "";
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
 
-  if(request.method === "POST"){
+//POST response posts messages
 
+if(request.method === "POST" && (request.url === "/classes/messages"|| request.url === "/classes/room1"))
+{
 
+  var body = "";
+  request.on('data', function(data){
+    body += data;
+  });
+  request.on('end', function(){
+    response.writeHead(201, headers)
+    messages.results.push(JSON.parse(body));
 
- var body = "";
- request.on('data', function(data){
-   body += data;
- });
- request.on('end', function(){
-   messages.push(JSON.parse(body));
-   console.log('messages', messages)
- })
+    response.end(JSON.stringify(messages))
+  })
+}
+if(request.method === "POST" && (request.url !== "/classes/messages"&& request.url !== "/classes/room1"))
+{
+  response.writeHead(400, headers)
+  console.log(messages)
+  response.end('POST Fail...room does not exist')
 }
 
-if(request.method === "GET"){
-  if(messages.length){
-    response.end(JSON.stringify(messages));
-    console.log('sent', messages)
+ //GET response sends array of messages
+
+if(request.method === "GET" && (request.url === "/classes/messages"|| request.url === "/classes/room1"))
+{
+
+
+  response.writeHead(200, headers);
+    if(messages.results.length)
+  {
+   console.log('here')
+   response.end(JSON.stringify(messages));
+   console.log('sent', messages.results)
   }
-  else{
-    response.end('No data to respond')
+  else
+  {
+   response.end(JSON.stringify(messages))
   }
 }
+ if(request.method === "GET" && (request.url !== "/classes/messages"&& request.url !== "/classes/room1"))
+{
+  response.writeHead(404, headers)
+  response.end("GET Fail...room does not exist")
+}
 
-
+if(request.method === "OPTIONS"){
+  response.writeHead(201, headers)
+  response.end('{}')
+};
 };
 exports.requestHandler = requestHandler;
 
