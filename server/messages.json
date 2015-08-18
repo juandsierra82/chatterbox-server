@@ -1,0 +1,7 @@
+// {
+//   "username": username,
+//   "text": text,
+//   "roomname": roomname
+// }
+
+// exports.message = message;

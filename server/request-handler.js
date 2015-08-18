@@ -11,8 +11,11 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var messages = [];
+var stringMessage = "";
 
-var requestHandler = function(request, response) {
+
+ var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -27,19 +30,24 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log("Serving request type " + request.method + " for url " + request.url);
 
   // The outgoing status.
   var statusCode = 200;
 
+
+
+  console.log("Serving request type " + request.method + " for url " + request.url, statusCode);
   // See the note below about CORS headers.
+
+
+
   var headers = defaultCorsHeaders;
 
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/json";
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -52,8 +60,34 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+
+  if(request.method === "POST"){
+
+
+
+ var body = "";
+ request.on('data', function(data){
+   body += data;
+ });
+ request.on('end', function(){
+   messages.push(JSON.parse(body));
+   console.log('messages', messages)
+ })
+}
+
+if(request.method === "GET"){
+  if(messages.length){
+    response.end(JSON.stringify(messages));
+    console.log('sent', messages)
+  }
+  else{
+    response.end('No data to respond')
+  }
+}
+
+
 };
+exports.requestHandler = requestHandler;
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
@@ -70,4 +104,5 @@ var defaultCorsHeaders = {
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10 // Seconds.
 };
+
 
